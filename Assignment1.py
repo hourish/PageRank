@@ -34,21 +34,31 @@ def calculate_page_rank():
     beta = 0.85
     delta = 0.001
     iterations_limit = 20
-    last_iteration = 0
 
     # Initials values - 1/N
     for node in nodes.values():
         node.setPageRank(1 / nodes.__len__())
 
+    # TODO only for check!
+    suppose_to_be_1 = 0
+    for node in nodes.values():
+        suppose_to_be_1 += node.pageRank
+    print('suppose to be 1... ' + str(suppose_to_be_1))
+
     for i in range(iterations_limit):
+        last_iteration = 0
+        new_pageRanks = []
         # Set new page rank for all nodes
         for node in nodes.values():
             new_pageRank = 0
             for neighbor in node.neighbors_in:
                 new_pageRank += beta * (neighbor.pageRank / neighbor.out_degree)
-                new_pageRank += (1 - beta) / nodes.__len__()
-                last_iteration += math.fabs(new_pageRank - node.pageRank)
-            node.setPageRank(new_pageRank)
+            new_pageRank += (1 - beta) / nodes.__len__()
+            last_iteration += math.fabs(new_pageRank - node.pageRank)
+            new_pageRanks.append(new_pageRank)
+
+        for new, old in zip(new_pageRanks, nodes.values()):
+            old.setPageRank(new)
 
         # TODO only for check!
         suppose_to_be_1 = 0
