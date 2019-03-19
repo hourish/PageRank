@@ -5,23 +5,13 @@ import math
 nodes = {} # Map node's name to it's object
 
 def load_graph(path):
+    '''Read csv file from the given path and update the data structures'''
     with open(path) as csv_file:
         rows = csv.reader(csv_file, delimiter=',')
-        for row in rows:
-            first_node = nodes.get(row[0])
-            second_node = nodes.get(row[1])
-            # Create new node if does not exist
-            if first_node == None:
-                first_node = Node(row[0])
-                nodes[row[0]] = first_node
-            else:
-                first_node = nodes[row[0]]
-
-            if second_node == None:
-                second_node = Node(row[1])
-                nodes[row[1]] = second_node
-            else:
-                second_node = nodes[row[1]]
+        for row in rows: # Each row is a list of source and destination nodes
+            # Create new nodes if do not exist
+            first_node = create_node(row[0]) if nodes.get(row[0]) == None else nodes[row[0]]
+            second_node = create_node(row[1]) if nodes.get(row[1]) == None else nodes[row[1]]
 
             # Add one to the out degree of the first node
             first_node.increase_out_degree()
@@ -30,7 +20,15 @@ def load_graph(path):
             second_node.add_neighbor(first_node)
 
 
+def create_node(name):
+    ''' Create new node from the given name, add to 'nodes' and return it'''
+    node = Node(name)
+    nodes[name] = node
+    return node
+
+
 def calculate_page_rank():
+    '''Calculate the page rank values for all the nodes given the parameters: beta, delta, iterations_limit'''
     beta = 0.85
     delta = 0.001
     iterations_limit = 20
@@ -39,17 +37,12 @@ def calculate_page_rank():
     for node in nodes.values():
         node.setPageRank(1 / nodes.__len__())
 
-    # TODO only for check!
-    suppose_to_be_1 = 0
-    for node in nodes.values():
-        suppose_to_be_1 += node.pageRank
-    print('suppose to be 1... ' + str(suppose_to_be_1))
-
+    # Update until reach iterations_limit or last_iteration <= delta
     for i in range(iterations_limit):
         last_iteration = 0
         new_pageRanks = []
-        # Set new page rank for all nodes
         s = 0
+        # Set new page rank for all nodes
         for node in nodes.values():
             r_prime = 0
             for neighbor in node.neighbors_in:
@@ -62,18 +55,37 @@ def calculate_page_rank():
             old.setPageRank(new_pageRank)
             last_iteration += math.fabs(new_pageRank - old.pageRank)
 
-
-
-        # TODO only for check!
-        suppose_to_be_1 = 0
-        for node in nodes.values():
-            suppose_to_be_1 += node.pageRank
-        print('suppose to be 1... ' + str(suppose_to_be_1))
-
         # Check stop conditions
         if last_iteration <= delta:
             break
 
+def get_PageRank(node_name):
+    '''Return the page rank value of the given node_name'''
+    if nodes[node_name] == None:
+        return '-1'
+    return nodes[node_name].pageRank
+
+
+def Get_top_nodes(n):
+    '''Return a list of tuples of n nodes with the highest page rank value'''
+    sortedLst = sorted(nodes.items(), key = lambda item : item[1].pageRank,reverse= True)
+    result = [] # Map node_name to its page rank value
+    for element in sortedLst[:n]:
+        result.append(tuple((element[0], element[1].pageRank)))
+    return result
+
+# TODO check question from the forum
+def get_all_PageRank():
+    '''Return a list of tuples of the nodes sorted by their page rank value of high to low'''
+    sortedLst = sorted(nodes.items(), key = lambda item : item[1].pageRank,reverse= True)
+    result = []
+    for element in sortedLst:
+        result.append(tuple((element[1].id, element[1].pageRank)))
+    return result
+
 if __name__== "__main__":
   load_graph('Wikipedia_votes.csv')
   calculate_page_rank()
+  print(get_PageRank('30'))
+  print(Get_top_nodes(4))
+  get_all_PageRank()
