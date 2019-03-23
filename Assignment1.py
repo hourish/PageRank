@@ -6,7 +6,7 @@ nodes = {} # Map node's name to it's object
 
 def load_graph(path):
     '''Read csv file from the given path and update the data structures'''
-    with open(path) as csv_file:
+    with open(path, encoding='utf-8-sig') as csv_file:
         rows = csv.reader(csv_file, delimiter=',')
         for row in rows: # Each row is a list of source and destination nodes
             # Create new nodes if do not exist
@@ -27,10 +27,8 @@ def create_node(name):
     return node
 
 
-def calculate_page_rank():
-    '''Calculate the page rank values for all the nodes given the parameters: beta, delta, iterations_limit'''
-    beta = 0.85
-    delta = 0.001
+def calculate_page_rank(beta = 0.85, delta = 0.001):
+    '''Calculate the page rank values for all the nodes given the parameters: beta, delta'''
     iterations_limit = 20
 
     # Initials values - 1/N
@@ -48,8 +46,9 @@ def calculate_page_rank():
             for neighbor in node.neighbors_in:
                 r_prime += beta * (neighbor.pageRank / neighbor.out_degree)
             s += r_prime
-            new_pageRanks.append(r_prime)
+            new_pageRanks.append(r_prime) # only r_prime without (1-s)/n
 
+        # After the calculation of s, add to the page rank values (1-s)/n
         for new, old in zip(new_pageRanks, nodes.values()):
             new_pageRank = new + ((1 - s) / nodes.__len__())
             old.setPageRank(new_pageRank)
@@ -74,18 +73,10 @@ def Get_top_nodes(n):
         result.append(tuple((element[0], element[1].pageRank)))
     return result
 
-# TODO check question from the forum
 def get_all_PageRank():
     '''Return a list of tuples of the nodes sorted by their page rank value of high to low'''
     sortedLst = sorted(nodes.items(), key = lambda item : item[1].pageRank,reverse= True)
     result = []
     for element in sortedLst:
-        result.append(tuple((element[1].id, element[1].pageRank)))
+        result.append(tuple((element[0], element[1].pageRank)))
     return result
-
-if __name__== "__main__":
-  load_graph('Wikipedia_votes.csv')
-  calculate_page_rank()
-  print(get_PageRank('30'))
-  print(Get_top_nodes(4))
-  get_all_PageRank()
