@@ -1,10 +1,7 @@
 class Node:
-    id_generator = 1
 
     def __init__(self, name):
-        self.name = name
-        self.id = Node.id_generator
-        Node.id_generator += 1
+        self.id = int(name)
         self.neighbors_in = []
         self.out_degree = 0
 

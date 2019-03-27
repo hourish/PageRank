@@ -2,7 +2,7 @@ from Node import *
 import csv
 import math
 
-nodes = {} # Map node's name to it's object
+nodes = {} # Map node's id to it's object
 
 def load_graph(path):
     '''Read csv file from the given path and update the data structures'''
@@ -10,8 +10,8 @@ def load_graph(path):
         rows = csv.reader(csv_file, delimiter=',')
         for row in rows: # Each row is a list of source and destination nodes
             # Create new nodes if do not exist
-            first_node = create_node(row[0]) if nodes.get(row[0]) == None else nodes[row[0]]
-            second_node = create_node(row[1]) if nodes.get(row[1]) == None else nodes[row[1]]
+            first_node = create_node(row[0]) if nodes.get(int(row[0])) == None else nodes[int(row[0])]
+            second_node = create_node(row[1]) if nodes.get(int(row[1])) == None else nodes[int(row[1])]
 
             # Add one to the out degree of the first node
             first_node.increase_out_degree()
@@ -23,7 +23,7 @@ def load_graph(path):
 def create_node(name):
     ''' Create new node from the given name, add to 'nodes' and return it'''
     node = Node(name)
-    nodes[name] = node
+    nodes[int(name)] = node
     return node
 
 
@@ -60,9 +60,9 @@ def calculate_page_rank(beta = 0.85, delta = 0.001):
 
 def get_PageRank(node_name):
     '''Return the page rank value of the given node_name'''
-    if nodes[node_name] == None:
+    if nodes[int(node_name)] == None:
         return '-1'
-    return nodes[node_name].pageRank
+    return nodes[int(node_name)].pageRank
 
 
 def Get_top_nodes(n):
